@@ -40,6 +40,13 @@ The last command compiles the original Xbox host, then calls `scripts/verify_uni
 
 The separate Xbox development scripts remain available for regression testing, but the workflow no longer publishes one artifact per console. The inspector target can build on its own; it recognizes XBE, XEX, STFS and Xbox One folder layouts, but identification is not the same as game execution.
 
+## iPhone Duo and iPad display support
+
+HeroBox 0.1.1 targets both iPhone and iPad device families, including the iPhone Duo outer and unfolded inner displays. The SwiftUI inspector uses the live scene geometry and horizontal size class to adapt its grid, spacing, and maximum content width. It does not hard-code an iPhone model identifier or use UIScreen.main to infer a fold state.
+
+Portrait and landscape orientations are supported on iPhone; iPad also supports upside-down portrait. The iPad target does not require fullscreen, allowing supported iPadOS multitasking and resizable windows. The same adaptive layout is intended to handle iPhone Duo folded, unfolded, and split-view scene sizes without a device-specific app edition.
+
+These changes improve the HeroBox SwiftUI host only. The three native emulation engines must independently handle Metal drawable resizing, changing safe areas, active window scenes, gamepad overlays, and JIT/memory lifecycle before game rendering can be considered supported in all iPhone Duo poses and iPad window modes. Validate on Xcode 27.1 Device Hub with iPhone Duo open, closed, rotated and folded, and on iPad with full-screen and resized windows.
 ## Credits and licensing
 
 This work references DukeX, xemu, XeniOS and Utsuro. Combined redistribution must retain their applicable license notices and comply with platform signing requirements.
