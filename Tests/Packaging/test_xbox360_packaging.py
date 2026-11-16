@@ -59,7 +59,7 @@ class Xbox360PackagingTests(unittest.TestCase):
             configure_bundle(self.app, self.version, self.assets)
 
     def test_reads_shared_version(self):
-        self.assertEqual(read_version(ROOT / "Version.xcconfig"), ("0.1.0", "1")
+        self.assertEqual(read_version(ROOT / "Version.xcconfig"), ("0.1.0", "1"))
 
 
 if __name__ == "__main__":
