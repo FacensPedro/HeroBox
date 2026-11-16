@@ -31,4 +31,20 @@ final class MediaTests: XCTestCase {
         }
         XCTAssertEqual(try XboxMedia.identify(root), .xboxOne)
     }
+
+    func testXISODescriptorRecognition() throws {
+        let root = FileManager.default.temporaryDirectory
+        let disc = root.appendingPathComponent(UUID().uuidString + ".iso")
+        defer { try? FileManager.default.removeItem(at: disc) }
+        var bytes = Data(repeating: 0, count: 0x10800)
+        let signature = Data("MICROSOFT*XBOX*MEDIA".utf8)
+        bytes.replaceSubrange(0x10000..<(0x10000 + signature.count), with: signature)
+        bytes.replaceSubrange(0x107EC..<(0x107EC + signature.count), with: signature)
+        try bytes.write(to: disc)
+        XCTAssertTrue(try XboxMedia.isXISO(disc))
+        XCTAssertNil(try XboxMedia.identify(disc))
+        bytes[0x107EC] = 0
+        try bytes.write(to: disc)
+        XCTAssertFalse(try XboxMedia.isXISO(disc))
+    }
 }

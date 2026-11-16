@@ -36,6 +36,24 @@ public enum XboxMedia {
         return try executableGeneration(url)
     }
 
+
+    /// Detects an XDVDFS disc image without assuming it is an original Xbox title.
+    /// Xbox 360 discs can also contain XDVDFS descriptors.
+    public static func isXISO(_ url: URL) throws -> Bool {
+        guard ["iso", "xiso"].contains(url.pathExtension.lowercased()) else { return false }
+        let attributes = try url.resourceValues(forKeys: [.isRegularFileKey, .fileSizeKey])
+        guard attributes.isRegularFile == true, (attributes.fileSize ?? 0) >= 0x10800 else {
+            return false
+        }
+        let file = try FileHandle(forReadingFrom: url)
+        defer { try? file.close() }
+        let signature = Data("MICROSOFT*XBOX*MEDIA".utf8)
+        try file.seek(toOffset: 0x10000)
+        guard try file.read(upToCount: signature.count) == signature else { return false }
+        try file.seek(toOffset: 0x107EC)
+        return try file.read(upToCount: signature.count) == signature
+    }
+
     private static func executableGeneration(_ url: URL) throws -> XboxGeneration? {
         let file = try FileHandle(forReadingFrom: url)
         defer { try? file.close() }

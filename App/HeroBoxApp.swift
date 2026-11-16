@@ -62,7 +62,10 @@ struct MediaInspector: View {
                                 case .original: return "Original Xbox media detected."
                                 case .xbox360: return "Xbox 360 media detected."
                                 case .xboxOne: return "Xbox One package layout detected."
-                                case nil: return "Unrecognized game media."
+                                case nil:
+                                    return try XboxMedia.isXISO(url)
+                                        ? "Xbox XISO disc image detected. Import compatible original Xbox XISO games through Play original Xbox in the player build."
+                                        : "Unrecognized game media."
                                 }
                             } catch { return error.localizedDescription }
                         }.value

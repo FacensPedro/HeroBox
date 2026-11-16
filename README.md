@@ -14,7 +14,7 @@ Download the HeroBox-0.1.0-original-Xbox artifact from the iOS workflow, extract
 | Xbox 360 | An executable starting with `XEX2`, or an extracted folder containing a matching `default.xex` |
 | Xbox One | A selected directory containing both `Mount/` and `EmbeddedXvd/` |
 
-Call `try XboxMedia.identify(url)` with a local file or directory URL. The method returns a console generation for recognized inputs, returns `nil` for unknown media, and throws on access errors. Recognition checks the signature or directory layout. It does not validate an entire game, extract disc images, or confirm compatibility.
+Call `try XboxMedia.identify(url)` with a local file or directory URL. The method returns a console generation for recognized inputs, returns `nil` for unknown media, and throws on access errors. Recognition checks the signature or directory layout. It does not validate an entire game, extract disc images, or confirm compatibility. The inspector also detects XDVDFS disc images (`.iso` or `.xiso`) using both volume-descriptor signatures; this alone cannot distinguish original Xbox discs from Xbox 360 discs. Compatible original Xbox XISO images are imported and launched through the DukeX/xemu player build, not the inspector-only target.
 
 ## Build and test
 
