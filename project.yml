@@ -1,0 +1,22 @@
+name: HeroBox
+options:
+  deploymentTarget:
+    iOS: "16.0"
+packages:
+  HeroBoxMedia:
+    path: .
+targets:
+  HeroBox:
+    type: application
+    platform: iOS
+    sources: [App]
+    dependencies:
+      - package: HeroBoxMedia
+        product: XboxMedia
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.facenspedro.herobox
+        GENERATE_INFOPLIST_FILE: YES
+        INFOPLIST_KEY_UILaunchScreen_Generation: YES
+        INFOPLIST_KEY_UIApplicationSceneManifest_Generation: YES
+        TARGETED_DEVICE_FAMILY: "1,2"
