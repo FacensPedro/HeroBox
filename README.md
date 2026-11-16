@@ -10,6 +10,12 @@ The consolidated executable must link the XeniOS engine as an in-process core, l
 
 The **0.1.0 (build 1)** release produces one `HeroBox-0.1.0.ipa` with bundle identifier `com.facenspedro.herobox`, containing the original Xbox DukeX/xemu host and the HeroBox dashboard. It does **not** run Xbox 360 or Xbox One games. The separate experimental `scripts/build-unified.sh` rejects incomplete three-console packaging. The GitHub Actions release IPA uses an ad-hoc development signature and requires signing for device installation.
 
+## Direct IPA downloads (no separate ZIP)
+
+GitHub Releases provide the build directly as `HeroBox-0.1.0.ipa`. The CI pipeline intentionally does not upload an Actions artifact, because GitHub Actions automatically wraps those downloads in a separate ZIP archive. Download the IPA from [HeroBox v0.1.0](https://github.com/FacensPedro/HeroBox/releases/tag/v0.1.0).
+
+**Important:** An IPA is itself a ZIP-format container internally, as required by iOS. Do not unpack, rename, or recompress it into an additional `.zip` file for distribution. This development IPA is ad-hoc signed and requires valid signing before installation.
+
 ## Are Xbox operating-system files required?
 
 | Console | Requirements |
