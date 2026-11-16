@@ -14,6 +14,11 @@ final class MediaTests: XCTestCase {
             XCTAssertEqual(try XboxMedia.identify(file), generation)
         }
         XCTAssertNil(try XboxMedia.identify(root))
+        // STFS content containers are Xbox 360 packages, not standalone XEX games.
+        for signature in ["CON ", "LIVE", "PIRS"] {
+            try Data(signature.utf8).write(to: file)
+            XCTAssertEqual(try XboxMedia.identify(file), .xbox360)
+        }
         let original = root.appendingPathComponent("DEFAULT.XBE")
         let sequel = root.appendingPathComponent("default.xex")
         try Data("XEX2".utf8).write(to: original)

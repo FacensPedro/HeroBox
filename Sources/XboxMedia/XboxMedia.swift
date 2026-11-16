@@ -5,7 +5,7 @@ public enum XboxGeneration: Equatable {
 }
 
 public enum XboxMedia {
-    /// Recognizes extracted executables and Utsuro's extracted package layout.
+    /// Recognizes XBE, XEX, Xbox 360 STFS and Utsuro package layouts.
     public static func identify(_ url: URL) throws -> XboxGeneration? {
         let keys: Set<URLResourceKey> = [.isDirectoryKey, .isRegularFileKey]
         let attributes = try url.resourceValues(forKeys: keys)
@@ -59,7 +59,7 @@ public enum XboxMedia {
         defer { try? file.close() }
         switch try file.read(upToCount: 4) {
         case Data("XBEH".utf8): return .original
-        case Data("XEX2".utf8): return .xbox360
+        case Data("XEX2".utf8), Data("CON ".utf8), Data("LIVE".utf8), Data("PIRS".utf8): return .xbox360
         default: return nil
         }
     }

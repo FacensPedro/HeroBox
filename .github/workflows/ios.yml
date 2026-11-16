@@ -6,6 +6,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - run: swift test
+      - run: python3 -m unittest discover -s Tests/Packaging -p 'test_*.py'
       - run: brew install xcodegen
       - run: xcodegen generate
       - run: xcodebuild -project HeroBox.xcodeproj -scheme HeroBox -destination 'generic/platform=iOS' -configuration Debug -derivedDataPath build/DerivedData CODE_SIGNING_ALLOWED=NO build
@@ -23,4 +24,17 @@ jobs:
         with:
           name: HeroBox-0.1.0-original-Xbox
           path: build/HeroBox-0.1.0.ipa
+          if-no-files-found: error
+
+  xbox-360:
+    runs-on: macos-15
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - name: Package the pinned Xbox 360 emulation core
+        run: bash scripts/build-xbox-360.sh
+      - uses: actions/upload-artifact@v4
+        with:
+          name: HeroBox-0.1.0-Xbox360
+          path: build/HeroBox-0.1.0-Xbox360.ipa
           if-no-files-found: error
