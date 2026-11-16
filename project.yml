@@ -1,7 +1,7 @@
 name: HeroBox
 options:
   deploymentTarget:
-    iOS: "16.0"
+    iOS: "26.0"
 packages:
   HeroBoxMedia:
     path: .
