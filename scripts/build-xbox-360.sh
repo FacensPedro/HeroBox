@@ -70,9 +70,8 @@ python3 "$root/scripts/configure_xbox_360.py" \
   "$app" "$root/Version.xcconfig" "$work/asset-info.plist"
 
 mkdir -p "$app/ThirdParty"
-if [[ -f "$work/source/LICENSE" ]]; then
-  cp "$work/source/LICENSE" "$app/ThirdParty/XeniOS-LICENSE.txt"
-fi
+test -f "$work/source/LICENSE"
+cp "$work/source/LICENSE" "$app/ThirdParty/XeniOS-LICENSE.txt"
 cat > "$app/ThirdParty/XeniOS-PROVENANCE.txt" <<EOF
 HeroBox Xbox 360 runtime
 HeroBox version: 0.1.0 (1)
@@ -91,6 +90,22 @@ if [[ "$app" != "$bundle" ]]; then
   mv "$app" "$bundle"
 fi
 
+# Preserve the original iOS runtime's requested permissions (including
+# XeniOS's debugging memory limit) and merge HeroBox Memory+ permissions.
+test -f "$work/source/xenia_ios.entitlements"
+python3 - "$work/source/xenia_ios.entitlements" "$root/HeroBox.entitlements" "$work/combined.entitlements" <<'PY'
+import plistlib
+import sys
+from pathlib import Path
+original, herobox, output = map(Path, sys.argv[1:])
+with original.open("rb") as handle:
+    requested = plistlib.load(handle)
+with herobox.open("rb") as handle:
+    requested.update(plistlib.load(handle))
+with output.open("wb") as handle:
+    plistlib.dump(requested, handle)
+PY
+
 # Verify an ad-hoc signed IPA; final sideloading requires device signing.
 shopt -s nullglob
 for nested in "$bundle"/Frameworks/*.dylib "$bundle"/Frameworks/*.framework; do
@@ -100,7 +115,7 @@ for extension in "$bundle"/PlugIns/*.appex "$bundle"/Extensions/*.appex; do
   codesign --force --sign - "$extension"
 done
 shopt -u nullglob
-codesign --force --sign - --entitlements "$root/HeroBox.entitlements" "$bundle"
+codesign --force --sign - --entitlements "$work/combined.entitlements" "$bundle"
 codesign --verify --deep --strict "$bundle"
 
 plist="$bundle/Info.plist"
