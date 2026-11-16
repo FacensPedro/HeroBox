@@ -15,7 +15,7 @@ export XEMU_IOS_CORE_DYLIB="${frameworks[0]}/libxemu-ios-core.dylib"
 export XEMU_IOS_SLIRP_DYLIB="${frameworks[0]}/libslirp.0.dylib"
 export MOLTENVK_FRAMEWORK="${frameworks[0]}/MoltenVK.framework"
 for binary in "$XEMU_IOS_CORE_DYLIB" "$XEMU_IOS_SLIRP_DYLIB" "$MOLTENVK_FRAMEWORK/MoltenVK"; do
-  xcrun lipo -verify_arch arm64 "$binary"
+  xcrun lipo "$binary" -verify_arch arm64
 done
 app="$source_dir/ios/DukeX/DukeX"
 python3 "$root/scripts/configure-original-xbox.py" "$app" "$root"
