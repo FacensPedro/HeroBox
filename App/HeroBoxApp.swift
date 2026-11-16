@@ -10,6 +10,7 @@ struct HeroBoxApp: App {
 }
 
 struct MediaInspector: View {
+    @Environment(\.horizontalSizeClass) private var horizontalSizeClass
     @State private var choosingMedia = false
     @State private var result = ""
     @State private var selection = ""
@@ -17,6 +18,7 @@ struct MediaInspector: View {
     @State private var showingSettings = false
 
     var body: some View {
+        GeometryReader { geometry in
         NavigationStack {
             ScrollView {
                 VStack(alignment: .leading, spacing: 12) {
@@ -24,7 +26,7 @@ struct MediaInspector: View {
                     ConsoleTile(title: "Inspect game media", icon: "opticaldisc", featured: true) {
                         choosingMedia = true
                     }
-                    LazyVGrid(columns: [GridItem(.adaptive(minimum: 200))], spacing: 10) {
+                    LazyVGrid(columns: [GridItem(.adaptive(minimum: geometry.size.width >= 650 ? 215 : 145), spacing: 12)], spacing: 12) {
                         ConsoleTile(title: "Original Xbox", icon: "gamecontroller") {
                             selection = "Original Xbox"
                             result = "The original Xbox core requires a MCPX ROM, a compatible BIOS, and a formatted HDD image. The three-console unified build is not yet available."
@@ -48,8 +50,9 @@ struct MediaInspector: View {
                         .accessibilityElement(children: .combine)
                     }
                 }
-                .frame(maxWidth: 920)
-                .padding(20)
+                .frame(maxWidth: horizontalSizeClass == .regular ? 1120 : 620)
+                .padding(.horizontal, geometry.size.width < 400 ? 12 : 24)
+                .padding(.vertical, 20)
                 .frame(maxWidth: .infinity)
             }
             .background(ConsolePalette.canvas.ignoresSafeArea())
@@ -91,6 +94,7 @@ struct MediaInspector: View {
                     result = error.localizedDescription
                 }
             }
+        }
         }
     }
 }
