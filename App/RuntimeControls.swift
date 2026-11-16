@@ -24,10 +24,9 @@ struct RuntimeControls: View {
 #else
                 guard let identifier = Bundle.main.bundleIdentifier else { return }
                 var request = URLComponents()
-                request.scheme = "stikdebug"
+                request.scheme = "stikjit"
                 request.host = "enable-jit"
-                request.queryItems = [URLQueryItem(name: "bundle-id", value: identifier),
-                                      URLQueryItem(name: "pid", value: String(getpid()))]
+                request.queryItems = [URLQueryItem(name: "bundle-id", value: identifier)]
                 if let url = request.url {
                     openURL(url) { accepted in
                         status = accepted ? "Request sent to StikDebug." : "Could not open StikDebug."
