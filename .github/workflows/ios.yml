@@ -19,15 +19,29 @@ jobs:
           test "$(plutil -extract CFBundleShortVersionString raw "$plist")" = "0.1.1"
           test "$(plutil -extract CFBundleVersion raw "$plist")" = "2"
   unified:
-    name: Build one IPA with all three real native cores
+    name: Unified runtime readiness and release
     runs-on: macos-15
     needs: validation
     timeout-minutes: 90
     steps:
       - uses: actions/checkout@v4
-      - name: Native integration and release gate
+      - name: Check real native adapter source availability
+        id: readiness
+        shell: bash
+        run: |
+          if python3 scripts/check_unified_sources.py; then
+            echo "ready=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "ready=false" >> "$GITHUB_OUTPUT"
+            echo "### Unified IPA is blocked" >> "$GITHUB_STEP_SUMMARY"
+            echo "The XeniOS and Utsuro in-process adapters are not integrated yet." >> "$GITHUB_STEP_SUMMARY"
+            echo "No IPA will be published until both native cores are linked and verified." >> "$GITHUB_STEP_SUMMARY"
+          fi
+      - name: Build and verify one native IPA
+        if: steps.readiness.outputs.ready == 'true'
         run: bash scripts/build-unified.sh
       - uses: actions/upload-artifact@v4
+        if: steps.readiness.outputs.ready == 'true'
         with:
           name: HeroBox-0.1.1
           path: build/HeroBox-0.1.1.ipa

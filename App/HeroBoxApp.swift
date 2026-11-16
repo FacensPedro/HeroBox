@@ -19,7 +19,7 @@ struct MediaInspector: View {
 
     var body: some View {
         GeometryReader { geometry in
-        NavigationStack {
+            NavigationStack {
             ScrollView {
                 VStack(alignment: .leading, spacing: 12) {
                     ConsoleHeader()
@@ -81,7 +81,7 @@ struct MediaInspector: View {
                                 case .xboxOne: return "Xbox One package layout detected."
                                 case nil:
                                     return try XboxMedia.isXISO(url)
-                                        ? "Xbox XDVDFS disc image detected. Choose the original Xbox or Xbox 360 player edition based on the game. Detection alone cannot distinguish them."
+                                        ? "Xbox XDVDFS disc image detected. The disc layout does not uniquely identify the console generation."
                                         : "Unrecognized game media."
                                 }
                             } catch { return error.localizedDescription }
@@ -94,7 +94,7 @@ struct MediaInspector: View {
                     result = error.localizedDescription
                 }
             }
-        }
+            }
         }
     }
 }

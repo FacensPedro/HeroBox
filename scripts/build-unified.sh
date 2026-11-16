@@ -7,16 +7,20 @@ root=$(cd "$(dirname "$0")/.." && pwd)
 output="$root/build/HeroBox-0.1.1.ipa"
 rm -f "$output"
 
+# Check that both native adapter implementations are present before spending
+# time downloading and compiling the original Xbox runtime.
+python3 "$root/scripts/check_unified_sources.py"
+
 # DukeX provides the currently runnable original Xbox host with the xemu core.
 bash "$root/scripts/build-original-xbox.sh"
 
 # This is a developer-only staging IPA until the other native cores have
 # been refactored to run inside DukeX's single iOS process.
-source="$root/build/HeroBox-0.1.1.ipa"
-test -s "$source" || { echo "Missing original Xbox host." >&2; exit 1; }
+host_ipa="$root/build/HeroBox-0.1.1.ipa"
+test -s "$host_ipa" || { echo "Missing original Xbox host." >&2; exit 1; }
 stage=$(mktemp -d)
 trap 'rm -rf "$stage"' EXIT
-ditto -x -k "$source" "$stage"
+ditto -x -k "$host_ipa" "$stage"
 app="$stage/Payload/HeroBox.app"
 test -d "$app" || { echo "Missing HeroBox.app." >&2; exit 1; }
 
