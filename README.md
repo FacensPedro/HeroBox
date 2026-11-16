@@ -8,7 +8,9 @@ HeroBox 0.1.0 is an experimental iOS/iPadOS app packaging an original Xbox nativ
 
 The consolidated executable must link the XeniOS engine as an in-process core, link the Utsuro engine and its FEX/JIT components, and coordinate their initialization and shutdown with the existing xemu runtime. It also needs one game library, renderer, input router, entitlement set and JIT/memory manager. Separate executables placed in the IPA are not a valid solution.
 
-The **0.1.0 (build 1)** release produces one `HeroBox-0.1.0.ipa` with bundle identifier `com.facenspedro.herobox`, containing the original Xbox DukeX/xemu host and the HeroBox dashboard. It does **not** run Xbox 360 or Xbox One games. The separate experimental `scripts/build-unified.sh` rejects incomplete three-console packaging. The GitHub Actions release IPA uses an ad-hoc development signature and requires signing for device installation.
+The **0.1.0 (build 1)** release produces one `HeroBox-0.1.0.ipa` with bundle identifier `com.herobox.app`, containing the original Xbox DukeX/xemu host and the HeroBox dashboard. It does **not** run Xbox 360 or Xbox One games. The separate experimental `scripts/build-unified.sh` rejects incomplete three-console packaging. The GitHub Actions release IPA uses an ad-hoc development signature and requires signing for device installation.
+
+**Bundle identifier:** `com.herobox.app`. This replaces the previous `com.facenspedro.herobox` identifier. iOS treats the change as a separate app, so installing this release does not update the previous bundle in place; migrate any existing local files before uninstalling an older build.
 
 ## Direct IPA downloads (no separate ZIP)
 

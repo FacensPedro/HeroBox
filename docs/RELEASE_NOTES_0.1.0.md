@@ -1,6 +1,6 @@
 # HeroBox 0.1.0
 
-Initial experimental iPhone/iPad release with the **original Xbox** DukeX/xemu native ARM64 runtime. The release includes a single IPA: HeroBox-0.1.0.ipa (build 1, bundle ID com.facenspedro.herobox).
+Initial experimental iPhone/iPad release with the **original Xbox** DukeX/xemu native ARM64 runtime. The release includes a single IPA: HeroBox-0.1.0.ipa (build 1, bundle ID com.herobox.app).
 
 ## Included
 - Original Xbox xemu core, Slirp network library, and MoltenVK.
@@ -16,3 +16,5 @@ Initial experimental iPhone/iPad release with the **original Xbox** DukeX/xemu n
 - iPhone Duo folding, iPad window resizing, JIT lifecycle, and controller/gameplay behavior require physical device validation.
 
 The code and third-party licensing information are available in the repository.
+
+The current IPA uses bundle identifier `com.herobox.app`. This differs from earlier 0.1.0 builds; iOS treats it as a distinct application rather than an in-place upgrade.

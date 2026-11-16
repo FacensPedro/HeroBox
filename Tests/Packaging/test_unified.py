@@ -26,7 +26,7 @@ class UnifiedRuntimeContractTests(unittest.TestCase):
             (self.app / item).write_bytes(b"binary fixture")
         (self.app / "Info.plist").write_bytes(plistlib.dumps({
             "CFBundleExecutable": "HeroBox",
-            "CFBundleIdentifier": "com.facenspedro.herobox",
+            "CFBundleIdentifier": "com.herobox.app",
             "CFBundleShortVersionString": VERSION,
             "CFBundleVersion": BUILD,
         }))

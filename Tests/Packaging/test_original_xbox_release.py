@@ -23,7 +23,7 @@ class OriginalXboxReleaseTests(unittest.TestCase):
             path.write_bytes(b"fixture")
         self.info = {
             "CFBundleExecutable": "HeroBox",
-            "CFBundleIdentifier": "com.facenspedro.herobox",
+            "CFBundleIdentifier": "com.herobox.app",
             "CFBundleShortVersionString": VERSION,
             "CFBundleVersion": BUILD,
             "UIDeviceFamily": [1, 2],

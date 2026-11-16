@@ -21,7 +21,7 @@ app="$source_dir/ios/DukeX/DukeX"
 python3 "$root/scripts/configure-original-xbox.py" "$app" "$root"
 xcodebuild -project "$source_dir/ios/DukeX/DukeX.xcodeproj" -scheme DukeX \
   -configuration Release -destination 'generic/platform=iOS' -derivedDataPath "$work/derived" \
-  -xcconfig "$root/Version.xcconfig" CODE_SIGNING_ALLOWED=NO PRODUCT_BUNDLE_IDENTIFIER=com.facenspedro.herobox \
+  -xcconfig "$root/Version.xcconfig" CODE_SIGNING_ALLOWED=NO PRODUCT_BUNDLE_IDENTIFIER=com.herobox.app \
   XEMU_IOS_DISPLAY_NAME=HeroBox ASSETCATALOG_COMPILER_APPICON_NAME=HeroBoxIcon build
 built="$work/derived/Build/Products/Release-iphoneos/DukeX.app"
 mkdir -p "$work/package/Payload" "$root/build"

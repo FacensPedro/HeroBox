@@ -121,7 +121,7 @@ codesign --verify --deep --strict "$bundle"
 plist="$bundle/Info.plist"
 [[ "$(plutil -extract CFBundleShortVersionString raw "$plist")" == "0.1.0" ]]
 [[ "$(plutil -extract CFBundleVersion raw "$plist")" == "1" ]]
-[[ "$(plutil -extract CFBundleIdentifier raw "$plist")" == "com.facenspedro.herobox.xbox360" ]]
+[[ "$(plutil -extract CFBundleIdentifier raw "$plist")" == "com.herobox.app.xbox360" ]]
 test -s "$bundle/Assets.car"
 test -f "$bundle/$entry"
 output="$root/build/HeroBox-0.1.0-Xbox360.ipa"

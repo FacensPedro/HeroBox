@@ -8,7 +8,7 @@ import re
 import sys
 from pathlib import Path
 
-BUNDLE_ID = "com.facenspedro.herobox.xbox360"
+BUNDLE_ID = "com.herobox.app.xbox360"
 
 
 def read_version(path: Path) -> tuple[str, str]:

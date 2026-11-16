@@ -14,7 +14,7 @@ spec = project.read_text().replace("ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon"
 assert "UTSURO_BUNDLE_IDENTIFIER: com.utsuro.app" in spec
 spec = spec.replace("    SWIFT_VERSION:", '    SWIFT_ACTIVE_COMPILATION_CONDITIONS: "$(inherited) HEROBOX_XBOX_ONE"\n    SWIFT_VERSION:')
 project.write_text(spec.replace("UTSURO_BUNDLE_IDENTIFIER: com.utsuro.app",
-                                "UTSURO_BUNDLE_IDENTIFIER: com.facenspedro.herobox"))
+                                "UTSURO_BUNDLE_IDENTIFIER: com.herobox.app"))
 shutil.copy(root / "Version.xcconfig", ios)
 spec = project.read_text().replace("settings:\n  base:", "configFiles:\n  Debug: Version.xcconfig\n  Release: Version.xcconfig\n\nsettings:\n  base:", 1)
 project.write_text(spec)

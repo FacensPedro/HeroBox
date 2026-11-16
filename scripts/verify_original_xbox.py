@@ -8,7 +8,7 @@ from pathlib import Path
 
 VERSION = "0.1.0"
 BUILD = "1"
-BUNDLE_ID = "com.facenspedro.herobox"
+BUNDLE_ID = "com.herobox.app"
 REQUIRED_FILES = (
     "Frameworks/libxemu-ios-core.dylib",
     "Frameworks/libslirp.0.dylib",

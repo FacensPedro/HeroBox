@@ -24,6 +24,7 @@ jobs:
           plist=build/DerivedData/Build/Products/Debug-iphoneos/HeroBox.app/Info.plist
           test "$(plutil -extract CFBundleShortVersionString raw "$plist")" = "0.1.0"
           test "$(plutil -extract CFBundleVersion raw "$plist")" = "1"
+          test "$(plutil -extract CFBundleIdentifier raw "$plist")" = "com.herobox.app"
 
   original_xbox:
     name: Build and release HeroBox 0.1.0 IPA
@@ -64,11 +65,10 @@ jobs:
           ipa="build/HeroBox-0.1.0.ipa"
           test -s "$ipa"
           if gh release view v0.1.0 --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
-            if gh release view v0.1.0 --repo "$GITHUB_REPOSITORY" --json assets --jq '.assets[].name' | grep -Fxq 'HeroBox-0.1.0.ipa'; then
-              echo "Existing .ipa release asset preserved."
-            else
-              gh release upload v0.1.0 "$ipa" --repo "$GITHUB_REPOSITORY"
-            fi
+            # A bundle identifier change requires replacing the existing IPA,
+            # rather than retaining an archive with the previous identifier.
+            gh release upload v0.1.0 "$ipa" --clobber --repo "$GITHUB_REPOSITORY"
+            gh release edit v0.1.0 --notes-file docs/RELEASE_NOTES_0.1.0.md --repo "$GITHUB_REPOSITORY"
           else
             gh release create v0.1.0 "$ipa" \
               --title "HeroBox 0.1.0" \
