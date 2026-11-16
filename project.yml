@@ -13,6 +13,9 @@ targets:
     dependencies:
       - package: HeroBoxMedia
         product: XboxMedia
+    configFiles:
+      Debug: Version.xcconfig
+      Release: Version.xcconfig
     settings:
       base:
         CODE_SIGN_ENTITLEMENTS: HeroBox.entitlements

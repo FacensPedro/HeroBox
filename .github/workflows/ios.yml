@@ -8,4 +8,8 @@ jobs:
       - run: swift test
       - run: brew install xcodegen
       - run: xcodegen generate
-      - run: xcodebuild -project HeroBox.xcodeproj -scheme HeroBox -destination 'generic/platform=iOS' CODE_SIGNING_ALLOWED=NO build
+      - run: xcodebuild -project HeroBox.xcodeproj -scheme HeroBox -destination 'generic/platform=iOS' -configuration Debug -derivedDataPath build/DerivedData CODE_SIGNING_ALLOWED=NO build
+      - name: Verify app version
+        run: |
+          plist=build/DerivedData/Build/Products/Debug-iphoneos/HeroBox.app/Info.plist
+          test "$(plutil -extract CFBundleShortVersionString raw "$plist")" = "0.1.0"

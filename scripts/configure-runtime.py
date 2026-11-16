@@ -13,6 +13,15 @@ assert "UTSURO_BUNDLE_IDENTIFIER: com.utsuro.app" in spec
 spec = spec.replace("    SWIFT_VERSION:", '    SWIFT_ACTIVE_COMPILATION_CONDITIONS: "$(inherited) HEROBOX_XBOX_ONE"\n    SWIFT_VERSION:')
 project.write_text(spec.replace("UTSURO_BUNDLE_IDENTIFIER: com.utsuro.app",
                                 "UTSURO_BUNDLE_IDENTIFIER: com.facenspedro.herobox"))
+shutil.copy(root / "Version.xcconfig", ios)
+spec = project.read_text().replace("settings:\n  base:", "configFiles:\n  Debug: Version.xcconfig\n  Release: Version.xcconfig\n\nsettings:\n  base:", 1)
+project.write_text(spec)
+for bundle in (app, ios / "UtsuroJITHelper"):
+    plist = bundle / "Info.plist"
+    data = plistlib.loads(plist.read_bytes())
+    data["CFBundleShortVersionString"] = "$(MARKETING_VERSION)"
+    data["CFBundleVersion"] = "$(CURRENT_PROJECT_VERSION)"
+    plist.write_bytes(plistlib.dumps(data))
 info = app / "Info.plist"
 metadata = plistlib.loads(info.read_bytes())
 metadata["CFBundleDisplayName"] = "HeroBox"
