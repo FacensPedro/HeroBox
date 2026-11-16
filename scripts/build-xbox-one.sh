@@ -12,4 +12,4 @@ git -C "$workspace/core" checkout -q --detach FETCH_HEAD
 python3 "$root/scripts/configure-runtime.py" "$workspace/core" "$root"
 mkdir -p "$root/build"
 export DD="$workspace/derived"
-bash "$workspace/core/scripts/package_ipa.sh" "$root/build/HeroBox-XboxOne.ipa"
+bash "$workspace/core/scripts/package_ipa.sh" "$root/build/HeroBox-0.1.1-XboxOne.ipa"

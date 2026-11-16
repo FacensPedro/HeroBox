@@ -13,7 +13,7 @@ jobs:
       - name: Verify app version
         run: |
           plist=build/DerivedData/Build/Products/Debug-iphoneos/HeroBox.app/Info.plist
-          test "$(plutil -extract CFBundleShortVersionString raw "$plist")" = "0.1.0"
+          test "$(plutil -extract CFBundleShortVersionString raw "$plist")" = "0.1.1"
   original-xbox:
     runs-on: macos-15
     steps:
@@ -22,8 +22,8 @@ jobs:
         run: bash scripts/build-original-xbox.sh
       - uses: actions/upload-artifact@v4
         with:
-          name: HeroBox-0.1.0-original-Xbox
-          path: build/HeroBox-0.1.0.ipa
+          name: HeroBox-0.1.1-original-Xbox
+          path: build/HeroBox-0.1.1.ipa
           if-no-files-found: error
 
   xbox-360:
@@ -35,6 +35,6 @@ jobs:
         run: bash scripts/build-xbox-360.sh
       - uses: actions/upload-artifact@v4
         with:
-          name: HeroBox-0.1.0-Xbox360
-          path: build/HeroBox-0.1.0-Xbox360.ipa
+          name: HeroBox-0.1.1-Xbox360
+          path: build/HeroBox-0.1.1-Xbox360.ipa
           if-no-files-found: error

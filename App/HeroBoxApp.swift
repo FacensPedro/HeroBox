@@ -60,7 +60,7 @@ struct MediaInspector: View {
                             do {
                                 switch try XboxMedia.identify(url) {
                                 case .original: return "Original Xbox media detected."
-                                case .xbox360: return "Xbox 360 media detected. Use the HeroBox 0.1.0 Xbox 360 player edition to import and launch compatible games."
+                                case .xbox360: return "Xbox 360 media detected. The unified three-console runtime is not complete yet."
                                 case .xboxOne: return "Xbox One package layout detected."
                                 case nil:
                                     return try XboxMedia.isXISO(url)

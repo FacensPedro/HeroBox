@@ -1,4 +1,4 @@
-"""Brand the XeniOS iOS runtime as a HeroBox 0.1.0 Xbox 360 edition.
+"""Brand the XeniOS iOS runtime as a HeroBox 0.1.1 Xbox 360 edition.
 
 The pinned ARM64 core executable is retained without binary modification.
 """
@@ -35,8 +35,8 @@ def configure_bundle(app: Path, version_config: Path, assets_plist: Path) -> Non
     if not entry or not (app / entry).is_file():
         raise ValueError("Missing original XeniOS executable")
     version, build = read_version(version_config)
-    if (version, build) != ("0.1.0", "1"):
-        raise ValueError("HeroBox Xbox 360 must remain at 0.1.0 (1)")
+    if (version, build) != ("0.1.1", "2"):
+        raise ValueError("HeroBox Xbox 360 must remain at 0.1.1 (2)")
     with assets_plist.open("rb") as handle:
         assets = plistlib.load(handle)
     if not (app / "Assets.car").is_file():

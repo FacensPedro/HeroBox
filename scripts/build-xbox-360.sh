@@ -74,7 +74,7 @@ test -f "$work/source/LICENSE"
 cp "$work/source/LICENSE" "$app/ThirdParty/XeniOS-LICENSE.txt"
 cat > "$app/ThirdParty/XeniOS-PROVENANCE.txt" <<EOF
 HeroBox Xbox 360 runtime
-HeroBox version: 0.1.0 (1)
+HeroBox version: 0.1.1 (2)
 Core project: XeniOS (BSD-3-Clause)
 Source: https://github.com/xenios-jp/XeniOS
 Pinned upstream source commit: $source_revision
@@ -119,12 +119,12 @@ codesign --force --sign - --entitlements "$work/combined.entitlements" "$bundle"
 codesign --verify --deep --strict "$bundle"
 
 plist="$bundle/Info.plist"
-[[ "$(plutil -extract CFBundleShortVersionString raw "$plist")" == "0.1.0" ]]
-[[ "$(plutil -extract CFBundleVersion raw "$plist")" == "1" ]]
+[[ "$(plutil -extract CFBundleShortVersionString raw "$plist")" == "0.1.1" ]]
+[[ "$(plutil -extract CFBundleVersion raw "$plist")" == "2" ]]
 [[ "$(plutil -extract CFBundleIdentifier raw "$plist")" == "com.facenspedro.herobox.xbox360" ]]
 test -s "$bundle/Assets.car"
 test -f "$bundle/$entry"
-output="$root/build/HeroBox-0.1.0-Xbox360.ipa"
+output="$root/build/HeroBox-0.1.1-Xbox360.ipa"
 rm -f "$output"
 (cd "$work/unpacked" && ditto -c -k --sequesterRsrc --keepParent Payload "$output")
 test -s "$output"
