@@ -34,3 +34,15 @@ entitlements = app / "DukeX.entitlements"
 data = plistlib.loads(entitlements.read_bytes())
 data.update(plistlib.loads((root / "HeroBox.entitlements").read_bytes()))
 entitlements.write_bytes(plistlib.dumps(data))
+
+# Work around a Swift type-checking timeout in the pinned DukeX FAT timestamp helper.
+# Keep the fix in the temporary checkout rather than modifying upstream.
+cloud_store = app / "Services/CloudSaves/FATXHDDCloudSaveStore.swift"
+cloud_source = cloud_store.read_text()
+original_timestamp = """        let time = UInt16(((components.hour ?? 0) << 11) | ((components.minute ?? 0) << 5) | ((components.second ?? 0) / 2))"""
+corrected_timestamp = """        let hour = UInt16(components.hour ?? 0)
+        let minute = UInt16(components.minute ?? 0)
+        let second = UInt16(components.second ?? 0)
+        let time = (hour << 11) | (minute << 5) | (second / 2)"""
+assert cloud_source.count(original_timestamp) == 1
+cloud_store.write_text(cloud_source.replace(original_timestamp, corrected_timestamp))
