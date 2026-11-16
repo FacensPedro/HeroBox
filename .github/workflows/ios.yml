@@ -13,3 +13,14 @@ jobs:
         run: |
           plist=build/DerivedData/Build/Products/Debug-iphoneos/HeroBox.app/Info.plist
           test "$(plutil -extract CFBundleShortVersionString raw "$plist")" = "0.1.0"
+  original-xbox:
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build the original Xbox player
+        run: bash scripts/build-original-xbox.sh
+      - uses: actions/upload-artifact@v4
+        with:
+          name: HeroBox-0.1.0-original-Xbox
+          path: build/HeroBox-0.1.0.ipa
+          if-no-files-found: error
