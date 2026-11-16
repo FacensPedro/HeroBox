@@ -1,47 +1,45 @@
 # HeroBox
 
-HeroBox is an early-stage iOS project for original Xbox, Xbox 360, and Xbox One emulation. The base SwiftUI app is a media inspector; gameplay requires a console-specific iOS runtime edition. Each runtime edition uses the HeroBox 0.1.0 version and is packaged separately, not combined into a single emulator executable.
+HeroBox 0.1.1 is an experimental iOS/iPadOS emulator project targeting **one signed IPA** with original Xbox, Xbox 360, and Xbox One cores.
 
-## Play original Xbox games
+## Single-IPA status
 
-Download the HeroBox-0.1.0-original-Xbox artifact from the iOS workflow, extract the IPA, sign it and install it on your device. Open Play original Xbox, configure the MCPX ROM, flash BIOS and HDD image, import an Xbox XISO into the library, enable JIT for HeroBox, then select the game to start it. On iOS 26 and later configure StikDebug with Universal.js. The device build compiles the DukeX v1.0.2 frontend, embeds its matching xemu, Slirp and MoltenVK binaries and runs the game in the HeroBox process. The inspector-only target remains available for development. No games or console firmware are included.
+**A working three-console IPA is not complete yet.** The original Xbox frontend (DukeX/xemu) already launches its own native shared core. XeniOS currently provides the Xbox 360 core as a separate UIKit application executable, and Utsuro statically links an Xbox One/FEX engine into a different iOS host. Those standalone app entry points cannot simply be copied into one IPA and launched as independent apps.
 
-## Play Xbox 360 games (XeniOS runtime)
+The consolidated executable must link the XeniOS engine as an in-process core, link the Utsuro engine and its FEX/JIT components, and coordinate their initialization and shutdown with the existing xemu runtime. It also needs one game library, renderer, input router, entitlement set and JIT/memory manager. Separate executables placed in the IPA are not a valid solution.
 
-The `HeroBox-0.1.0-Xbox360` GitHub Actions artifact contains `HeroBox-0.1.0-Xbox360.ipa` for iPhone and iPad. It includes the native ARM64 Xbox 360 emulation engine from [XeniOS](https://github.com/xenios-jp/XeniOS), which is based on Xenia Edge: PowerPC CPU recompilation, a Metal GPU backend, audio, gamepad and touch-input components, game storage, and StikDebug JIT integration. This is a **separate, complete player edition**, not an external app redirect or a nonfunctional UI mock. It uses XeniOS's native in-app library and game launcher; those screens are still upstream XeniOS UI, not the SwiftUI inspector's Xbox One-style dashboard.
+All release version settings have been moved to **0.1.1 (build 2)**. The only intended release artifact is `HeroBox-0.1.1.ipa` with bundle identifier `com.facenspedro.herobox`. The unified build script deliberately rejects the current original-Xbox-only application until genuine Xbox 360 and Xbox One native adapters exist, so no false three-console IPA is published.
 
-Download the Actions artifact, extract the IPA, sign it for your device and install it. On iOS 26 and later, configure and verify StikDebug JIT before launching games. In the Xbox 360 player edition, import a game backup that you legally own using the built-in library and start it from there. XEX, ISO, ZAR and XContent formats are handled by the XeniOS runtime; the base HeroBox inspector only recognizes signatures and cannot launch them. Support and performance vary by game, device and signing method. HeroBox has not validated individual games on physical devices.
+## Are Xbox operating-system files required?
 
-The runtime is pinned to XeniOS source commit `77cc1358b71ec268a7fa5792c44d87f0c09a216a` and prebuilt iOS release `release-v2.3.3-build-11940`. The build verifies the upstream IPA's SHA-256 before repackaging, recompiles the complete asset catalog with the existing HeroBox icon, stamps version `0.1.0 (1)` and bundle ID `com.facenspedro.herobox.xbox360`, and ad-hoc signs the result. It preserves the original executable and upstream license notices. The original XeniOS interface and upstream acknowledgements remain included. Final signing is required for device installation; Memory+ and JIT entitlements depend on the device and signing method.
-
-Build it on macOS with Xcode Command Line Tools and `bash scripts/build-xbox-360.sh`. The pinned prebuilt core is used so the HeroBox CI does not need to recompile the large XeniOS codebase. This does **not** demonstrate successful game execution on a device. You can build XeniOS from the exact pinned source separately for auditing or modification. No games, console keys, or firmware are distributed.
-
-## Media identification
-
-| Console | Recognized input |
+| Console | Requirements |
 | --- | --- |
-| Original Xbox | An executable starting with `XBEH`, or an extracted folder containing a matching `default.xbe` |
-| Xbox 360 | An executable starting with `XEX2`, a valid matching `default.xex`, or an STFS container starting with `CON `, `LIVE`, or `PIRS` |
-| Xbox One | A selected directory containing both `Mount/` and `EmbeddedXvd/` |
+| Original Xbox | MCPX boot ROM, Xbox-compatible flash BIOS, and a properly formatted Xbox HDD image. The original Microsoft dashboard is not required when the HDD has a compatible alternative. |
+| Xbox 360 | No Xbox 360 operating system, dashboard, BIOS, or NAND image is required for regular games when using Xenia/XeniOS. |
+| Xbox One | Utsuro needs a **decrypted game dump** with both `Mount/` and `EmbeddedXvd/Windows`; the latter supplies Windows-derived Xbox One userland files. New OS versions may require additional compatibility tables. There is no separate full-OS installation step. |
 
-Call `try XboxMedia.identify(url)` with a local file or directory URL. The method returns a console generation for recognized inputs, returns `nil` for unknown media, and throws on access errors. Recognition checks the signature or directory layout. It does not validate an entire game, extract disc images, or confirm compatibility. The inspector also detects XDVDFS disc images (`.iso` or `.xiso`) using both volume-descriptor signatures; this alone cannot distinguish original Xbox discs from Xbox 360 discs. Compatible images are imported using the appropriate original Xbox (DukeX/xemu) or Xbox 360 (XeniOS) player edition, not the inspector-only target.
+No proprietary Microsoft firmware, OS images, keys, or commercial games are bundled in HeroBox.
 
-## Build and test
+## Native engine sources
 
-To build the app on macOS, install XcodeGen, run `xcodegen generate`, and open `HeroBox.xcodeproj`. Select the HeroBox scheme and a signing team for device installation.
+- Original Xbox: [DukeX/xemu](https://github.com/MaftyManicEMU/DukeX), including the xemu ARM64 shared core, Slirp and MoltenVK.
+- Xbox 360: [XeniOS](https://github.com/xenios-jp/XeniOS), including PowerPC-to-ARM64 JIT and a native Metal renderer. The upstream iOS build remains a standalone executable until refactored.
+- Xbox One: [Utsuro](https://github.com/Leviidev/Utsuro), an Xbox One Windows-userland translation layer using FEX, with a separate game library, JIT initialization and bundled per-title system files.
 
-Open `Package.swift` in Xcode 15 or later. The library targets iOS 16 or later. Run `swift test` on a Mac to execute the media recognition tests.
+## Build
 
-## Xbox One device build
+Swift recognition tests and packaging-contract tests run in GitHub Actions. On a macOS build host:
 
-On a Mac with Xcode 26, XcodeGen, CMake, ccache, and the hosted-JIT husk-fex source tree, export `HUSK_FEX_DIR` and run `bash scripts/build-xbox-one.sh`. The upstream FEX build also reads `FATHOM/build/fexcore-macos-libs/libxxhash.a` if its own build does not produce that archive. The script compiles a pinned Utsuro revision and packages the engine, Metal renderer, controller support, JIT script, and HeroBox media inspector together in `build/HeroBox-XboxOne.ipa`. The standard inspector target does not link this engine.
+```sh
+swift test
+python3 -m unittest discover -s Tests/Packaging -p 'test_*.py'
+bash scripts/build-unified.sh
+```
 
-Sign the IPA for your device. In the runtime build, choose StikDebug in Settings and use the runtime's JIT setup so it sends its matching script and prepares executable memory. Import a decrypted Xbox One game directory containing Mount and EmbeddedXvd, then select Play in the library. Xbox 360 games use the separate XeniOS-based player edition described above. No title has been validated on a physical device in this project.
+The last command compiles the original Xbox host, then calls `scripts/verify_unified.py` to check for an in-process Xbox 360 native launcher and an in-process Xbox One native launcher. Both are **still missing**. Until they are implemented and gameplay is verified, the command fails without releasing an IPA. This is an intentional safety check, not a successful universal emulator build.
 
-## Memory+
+The separate Xbox development scripts remain available for regression testing, but the workflow no longer publishes one artifact per console. The inspector target can build on its own; it recognizes XBE, XEX, STFS and Xbox One folder layouts, but identification is not the same as game execution.
 
-HeroBox targets request the increased memory limit and extended virtual addressing entitlements. The signing profile and device determine whether they take effect. The inspector shows current process memory headroom. Its StikDebug action requests attachment to the current process and reports URL delivery only.
+## Credits and licensing
 
-## Credits
-
-The Xbox One device build uses [Utsuro](https://github.com/Leviidev/Utsuro), its FEX integration, StikDebug support, and game library. The Xbox 360 player edition uses [XeniOS](https://github.com/xenios-jp/XeniOS) under its BSD-3-Clause license, with bundled acknowledgements and original source/release provenance. Original Xbox emulation uses the DukeX/xemu runtime.
+This work references DukeX, xemu, XeniOS and Utsuro. Combined redistribution must retain their applicable license notices and comply with platform signing requirements.

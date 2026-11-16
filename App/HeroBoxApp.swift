@@ -24,6 +24,20 @@ struct MediaInspector: View {
                     ConsoleTile(title: "Inspect game media", icon: "opticaldisc", featured: true) {
                         choosingMedia = true
                     }
+                    LazyVGrid(columns: [GridItem(.adaptive(minimum: 200))], spacing: 10) {
+                        ConsoleTile(title: "Original Xbox", icon: "gamecontroller") {
+                            selection = "Original Xbox"
+                            result = "The original Xbox core requires a MCPX ROM, a compatible BIOS, and a formatted HDD image. The three-console unified build is not yet available."
+                        }
+                        ConsoleTile(title: "Xbox 360", icon: "gamecontroller.fill") {
+                            selection = "Xbox 360"
+                            result = "XeniOS does not require Xbox 360 OS files for game execution, but its current app executable must be adapted to run in the shared HeroBox host."
+                        }
+                        ConsoleTile(title: "Xbox One", icon: "square.stack.3d.up") {
+                            selection = "Xbox One"
+                            result = "Utsuro needs a decrypted game dump with Mount and EmbeddedXvd. Its FEX runtime still needs a working in-process adapter for the unified app."
+                        }
+                    }
                     ConsoleTile(title: "Runtime settings", icon: "gearshape") { showingSettings = true }
                     if !result.isEmpty {
                         VStack(alignment: .leading, spacing: 6) {
