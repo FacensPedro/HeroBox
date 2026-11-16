@@ -52,27 +52,32 @@ jobs:
           executable=$(plutil -extract CFBundleExecutable raw "$app/Info.plist")
           xcrun lipo "$app/$executable" -verify_arch arm64
           xcrun lipo "$app/Frameworks/libxemu-ios-core.dylib" -verify_arch arm64
-      - uses: actions/upload-artifact@v4
-        with:
-          name: HeroBox-0.1.0
-          path: build/HeroBox-0.1.0.ipa
-          if-no-files-found: error
-      - name: Publish GitHub Release v0.1.0
-        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+      # Do not use actions/upload-artifact: GitHub Actions wraps downloads in ZIP.
+      # Publish the .ipa itself as a GitHub Release asset instead.
+      - name: Publish direct IPA asset in GitHub Release v0.1.0
+        if: github.ref == 'refs/heads/main' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         shell: bash
         run: |
           set -euo pipefail
+          ipa="build/HeroBox-0.1.0.ipa"
+          test -s "$ipa"
           if gh release view v0.1.0 --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
-            echo "Release v0.1.0 already exists; preserving the published asset."
+            if gh release view v0.1.0 --repo "$GITHUB_REPOSITORY" --json assets --jq '.assets[].name' | grep -Fxq 'HeroBox-0.1.0.ipa'; then
+              echo "Existing .ipa release asset preserved."
+            else
+              gh release upload v0.1.0 "$ipa" --repo "$GITHUB_REPOSITORY"
+            fi
           else
-            gh release create v0.1.0 build/HeroBox-0.1.0.ipa \
+            gh release create v0.1.0 "$ipa" \
               --title "HeroBox 0.1.0" \
               --notes-file docs/RELEASE_NOTES_0.1.0.md \
               --target "$GITHUB_SHA" \
               --repo "$GITHUB_REPOSITORY"
           fi
+          echo "### Download the IPA directly (no extra ZIP wrapper)" >> "$GITHUB_STEP_SUMMARY"
+          echo "https://github.com/$GITHUB_REPOSITORY/releases/download/v0.1.0/HeroBox-0.1.0.ipa" >> "$GITHUB_STEP_SUMMARY"
 
   unified:
     name: Unified three-console native integration readiness
