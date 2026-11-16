@@ -18,6 +18,7 @@ struct MediaInspector: View {
         NavigationStack {
             List {
                 Button("Inspect game file or folder") { choosingMedia = true }
+                RuntimeControls()
                 if !result.isEmpty {
                     Section(selection) { Text(result) }
                 }

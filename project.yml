@@ -15,6 +15,7 @@ targets:
         product: XboxMedia
     settings:
       base:
+        CODE_SIGN_ENTITLEMENTS: HeroBox.entitlements
         PRODUCT_BUNDLE_IDENTIFIER: com.facenspedro.herobox
         GENERATE_INFOPLIST_FILE: YES
         INFOPLIST_KEY_UILaunchScreen_Generation: YES

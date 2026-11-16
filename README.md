@@ -1,6 +1,6 @@
 # HeroBox
 
-HeroBox is an early-stage iOS project for original Xbox, Xbox 360, and Xbox One emulation. The iPhone and iPad app inspects files and folders selected in Files. Game execution is still under development.
+HeroBox is an early-stage iOS project for original Xbox, Xbox 360, and Xbox One emulation. The iPhone and iPad app inspects files and folders selected in Files. A separate experimental device build includes the Xbox One runtime.
 
 ## Media identification
 
@@ -18,10 +18,16 @@ To build the app on macOS, install XcodeGen, run `xcodegen generate`, and open `
 
 Open `Package.swift` in Xcode 15 or later. The library targets iOS 16 or later. Run `swift test` on a Mac to execute the media recognition tests.
 
-The iOS workflow runs the tests and builds the app for a generic iOS device. Triggering the workflow manually also attempts to build a separate upstream Utsuro IPA from its default branch. That artifact contains Utsuro. HeroBox does not yet bundle an emulator core.
+## Xbox One device build
 
-## Runtime projects
+On a Mac with Xcode 26, XcodeGen, CMake, ccache, and the hosted-JIT husk-fex source tree, export `HUSK_FEX_DIR` and run `bash scripts/build-xbox-one.sh`. The upstream FEX build also reads `FATHOM/build/fexcore-macos-libs/libxxhash.a` if its own build does not produce that archive. The script compiles a pinned Utsuro revision and packages the engine, Metal renderer, controller support, JIT script, and HeroBox media inspector together in `build/HeroBox-XboxOne.ipa`. The standard inspector target does not link this engine.
 
-- [Xenra](https://github.com/Yebot32/xenra) targets the original Xbox and Xbox 360.
-- [XeniOS](https://github.com/xenios-jp/XeniOS) targets Xbox 360 on Apple devices.
-- [Utsuro](https://github.com/Leviidev/Utsuro) targets Xbox One games on Apple devices.
+Sign the IPA for your device. In the runtime build, choose StikDebug in Settings and use the runtime's JIT setup so it sends its matching script and prepares executable memory. Import a decrypted Xbox One game directory containing Mount and EmbeddedXvd, then select Play in the library. Original Xbox and Xbox 360 inputs can currently be inspected only. No title has been validated on a physical device in this project.
+
+## Memory+
+
+Both targets request the increased memory limit and extended virtual addressing entitlements. The signing profile and device determine whether they take effect. The inspector shows current process memory headroom. Its StikDebug action requests attachment to the current process and reports URL delivery only.
+
+## Credits
+
+The Xbox One device build uses [Utsuro](https://github.com/Leviidev/Utsuro), its FEX integration, StikDebug support, and game library.
