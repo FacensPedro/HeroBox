@@ -27,12 +27,42 @@ inspector = (root / "App/HeroBoxApp.swift").read_text()
 view = inspector[inspector.index("struct MediaInspector: View"):]
 (app / "MediaInspector.swift").write_text("import SwiftUI\nimport UniformTypeIdentifiers\n" + view)
 shutil.copy(root / "App/RuntimeControls.swift", app)
+shutil.copy(root / "App/ConsoleDashboard.swift", app)
 shutil.copy(root / "Sources/XboxMedia/XboxMedia.swift", app)
 homepage = app / "RootView.swift"
 source = homepage.read_text()
 anchor = "                    SettingsView()"
 assert source.count(anchor) == 1
 source = source.replace("struct RootView: View {", "struct RootView: View {\n    @State private var inspectingMedia = false")
+header = """                    header
+                        .padding(.horizontal, 2)
+                        .padding(.bottom, 14)"""
+assert source.count(header) == 1
+source = source.replace(header, """                    HStack {
+                        ConsoleHeader()
+                        HomeMenu()
+                    }
+                    .padding(.bottom, 14)
+
+                    LazyVGrid(columns: [GridItem(.adaptive(minimum: 145))], spacing: 8) {
+                        ConsoleTile(title: "My games", icon: "square.grid.2x2", featured: true) {
+                            router.tab = .library
+                        }
+                        ConsoleTile(title: "Import game", icon: "plus.rectangle") {
+                            router.addingGame = true
+                        }
+                    }
+                    .padding(.bottom, 16)""")
+source = source.replace(".background(Ink.page.ignoresSafeArea())",
+                        ".background(ConsolePalette.canvas.ignoresSafeArea())", 1)
+tab_end = """                }
+            }
+        }
+        .sheet(isPresented: $jit.showSetup)"""
+assert source.count(tab_end) == 1
+source = source.replace(tab_end, tab_end.replace("                }", """                }
+                .tint(ConsolePalette.accent)
+                .preferredColorScheme(.dark)""", 1))
 homepage.write_text(source.replace(anchor, anchor + """
                         .safeAreaInset(edge: .bottom) {
                             Button("Inspect game media") { inspectingMedia = true }

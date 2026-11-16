@@ -14,16 +14,42 @@ struct MediaInspector: View {
     @State private var result = ""
     @State private var selection = ""
 
+    @State private var showingSettings = false
+
     var body: some View {
         NavigationStack {
-            List {
-                Button("Inspect game file or folder") { choosingMedia = true }
-                RuntimeControls()
-                if !result.isEmpty {
-                    Section(selection) { Text(result) }
+            ScrollView {
+                VStack(alignment: .leading, spacing: 12) {
+                    ConsoleHeader()
+                    ConsoleTile(title: "Inspect game media", icon: "opticaldisc", featured: true) {
+                        choosingMedia = true
+                    }
+                    ConsoleTile(title: "Runtime settings", icon: "gearshape") { showingSettings = true }
+                    if !result.isEmpty {
+                        VStack(alignment: .leading, spacing: 6) {
+                            Text(selection).font(.headline)
+                            Text(result).foregroundStyle(.secondary)
+                        }
+                        .padding(.vertical, 12)
+                        .accessibilityElement(children: .combine)
+                    }
                 }
+                .frame(maxWidth: 920)
+                .padding(20)
+                .frame(maxWidth: .infinity)
             }
-            .navigationTitle("HeroBox")
+            .background(ConsolePalette.canvas.ignoresSafeArea())
+            .preferredColorScheme(.dark)
+            .sheet(isPresented: $showingSettings) {
+                NavigationStack {
+                    List { RuntimeControls() }
+                        .navigationTitle("Runtime settings")
+                        .toolbar {
+                            Button("Done") { showingSettings = false }
+                        }
+                }
+                .preferredColorScheme(.dark)
+            }
             .fileImporter(isPresented: $choosingMedia, allowedContentTypes: [.data, .folder]) { response in
                 switch response {
                 case .success(let url):
