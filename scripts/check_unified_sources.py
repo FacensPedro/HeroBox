@@ -10,7 +10,7 @@ ADAPTERS = (
 
 
 def missing_adapters() -> list[str]:
-    return [str(path.relative_to(ROOT)) for path in ADAPTERS if not path.is_file()]
+    return [str(path.relative_to(ROOT)) if path.is_relative_to(ROOT) else str(path)\n            for path in ADAPTERS if not path.is_file()]
 
 
 def main() -> int:
