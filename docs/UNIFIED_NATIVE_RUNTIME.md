@@ -2,7 +2,7 @@
 
 ## Single-process requirement
 
-HeroBox 0.1.1 targets a single iOS application executable. Each console core must use an in-process entry point. An embedded .ipa, .app, or standalone Mach-O executable cannot be treated as an integrated launcher.
+HeroBox 0.1.0 targets a single iOS application executable. Each console core must use an in-process entry point. An embedded .ipa, .app, or standalone Mach-O executable cannot be treated as an integrated launcher.
 
 ## Original Xbox
 

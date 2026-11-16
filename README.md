@@ -1,6 +1,6 @@
 # HeroBox
 
-HeroBox 0.1.1 is an experimental iOS/iPadOS emulator project targeting **one signed IPA** with original Xbox, Xbox 360, and Xbox One cores.
+HeroBox 0.1.0 is an experimental iOS/iPadOS app packaging an original Xbox native engine in one IPA. Xbox 360 and Xbox One are planned for the same IPA but are not integrated yet.
 
 ## Single-IPA status
 
@@ -8,7 +8,7 @@ HeroBox 0.1.1 is an experimental iOS/iPadOS emulator project targeting **one sig
 
 The consolidated executable must link the XeniOS engine as an in-process core, link the Utsuro engine and its FEX/JIT components, and coordinate their initialization and shutdown with the existing xemu runtime. It also needs one game library, renderer, input router, entitlement set and JIT/memory manager. Separate executables placed in the IPA are not a valid solution.
 
-All release version settings have been moved to **0.1.1 (build 2)**. The only intended release artifact is `HeroBox-0.1.1.ipa` with bundle identifier `com.facenspedro.herobox`. The unified build script deliberately rejects the current original-Xbox-only application until genuine Xbox 360 and Xbox One native adapters exist, so no false three-console IPA is published.
+The **0.1.0 (build 1)** release produces one `HeroBox-0.1.0.ipa` with bundle identifier `com.facenspedro.herobox`, containing the original Xbox DukeX/xemu host and the HeroBox dashboard. It does **not** run Xbox 360 or Xbox One games. The separate experimental `scripts/build-unified.sh` rejects incomplete three-console packaging. The GitHub Actions release IPA uses an ad-hoc development signature and requires signing for device installation.
 
 ## Are Xbox operating-system files required?
 
@@ -33,16 +33,18 @@ Swift recognition tests and packaging-contract tests run in GitHub Actions. On a
 ```sh
 swift test
 python3 -m unittest discover -s Tests/Packaging -p 'test_*.py'
+bash scripts/build-original-xbox.sh
+# Experimental three-console integration gate (still blocked):
 bash scripts/build-unified.sh
 ```
 
-The last command compiles the original Xbox host, then calls `scripts/verify_unified.py` to check for an in-process Xbox 360 native launcher and an in-process Xbox One native launcher. Both are **still missing**. Until they are implemented and gameplay is verified, the command fails without releasing an IPA. This is an intentional safety check, not a successful universal emulator build.
+GitHub Actions builds, verifies and uploads the original Xbox IPA; a successful main-branch build publishes release `v0.1.0`. The experimental unified command checks for the missing in-process Xbox 360 and Xbox One launchers, and remains intentionally blocked. That block does not prevent the honestly labeled original Xbox 0.1.0 release.
 
-The separate Xbox development scripts remain available for regression testing, but the workflow no longer publishes one artifact per console. The inspector target can build on its own; it recognizes XBE, XEX, STFS and Xbox One folder layouts, but identification is not the same as game execution.
+Xbox 360 and Xbox One standalone development scripts remain for regression testing, but no separate console-edition IPAs are published. The inspector target can build on its own; it recognizes XBE, XEX, STFS and Xbox One folder layouts, but identification is not the same as game execution.
 
 ## iPhone Duo and iPad display support
 
-HeroBox 0.1.1 targets both iPhone and iPad device families, including the iPhone Duo outer and unfolded inner displays. The SwiftUI inspector uses the live scene geometry and horizontal size class to adapt its grid, spacing, and maximum content width. It does not hard-code an iPhone model identifier or use UIScreen.main to infer a fold state.
+HeroBox 0.1.0 targets both iPhone and iPad device families, including the iPhone Duo outer and unfolded inner displays. The SwiftUI inspector uses the live scene geometry and horizontal size class to adapt its grid, spacing, and maximum content width. It does not hard-code an iPhone model identifier or use UIScreen.main to infer a fold state.
 
 Portrait and landscape orientations are supported on iPhone; iPad also supports upside-down portrait. The iPad target does not require fullscreen, allowing supported iPadOS multitasking and resizable windows. The same adaptive layout is intended to handle iPhone Duo folded, unfolded, and split-view scene sizes without a device-specific app edition.
 

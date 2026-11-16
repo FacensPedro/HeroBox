@@ -54,9 +54,9 @@ class UnifiedRuntimeContractTests(unittest.TestCase):
     def test_rejects_wrong_version(self):
         info_path = self.app / "Info.plist"
         info = plistlib.loads(info_path.read_bytes())
-        info["CFBundleShortVersionString"] = "0.1.0"
+        info["CFBundleShortVersionString"] = "0.1.1"
         info_path.write_bytes(plistlib.dumps(info))
-        self.assertTrue(any("0.1.1" in issue for issue in verify_bundle(self.app, self.symbols)))
+        self.assertTrue(any("0.1.0" in issue for issue in verify_bundle(self.app, self.symbols)))
 
 
 if __name__ == "__main__":

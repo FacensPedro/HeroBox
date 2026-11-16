@@ -4,7 +4,7 @@
 set -euo pipefail
 
 root=$(cd "$(dirname "$0")/.." && pwd)
-output="$root/build/HeroBox-0.1.1.ipa"
+output="$root/build/HeroBox-0.1.0.ipa"
 rm -f "$output"
 
 # Check that both native adapter implementations are present before spending
@@ -16,7 +16,7 @@ bash "$root/scripts/build-original-xbox.sh"
 
 # This is a developer-only staging IPA until the other native cores have
 # been refactored to run inside DukeX's single iOS process.
-host_ipa="$root/build/HeroBox-0.1.1.ipa"
+host_ipa="$root/build/HeroBox-0.1.0.ipa"
 test -s "$host_ipa" || { echo "Missing original Xbox host." >&2; exit 1; }
 stage=$(mktemp -d)
 trap 'rm -rf "$stage"' EXIT

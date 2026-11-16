@@ -28,7 +28,7 @@ class Xbox360PackagingTests(unittest.TestCase):
             "LSApplicationQueriesSchemes": ["stikjit"],
         }))
         self.version = self.root / "Version.xcconfig"
-        self.version.write_text("MARKETING_VERSION = 0.1.1\nCURRENT_PROJECT_VERSION = 2\n")
+        self.version.write_text("MARKETING_VERSION = 0.1.0\nCURRENT_PROJECT_VERSION = 1\n")
         self.assets = self.root / "asset-info.plist"
         self.assets.write_bytes(plistlib.dumps({"CFBundleIcons": {
             "CFBundlePrimaryIcon": {"CFBundleIconName": "AppIcon"}
@@ -37,8 +37,8 @@ class Xbox360PackagingTests(unittest.TestCase):
     def test_branding_preserves_entry_point_and_jit(self):
         configure_bundle(self.app, self.version, self.assets)
         info = plistlib.loads(self.info.read_bytes())
-        self.assertEqual(info["CFBundleShortVersionString"], "0.1.1")
-        self.assertEqual(info["CFBundleVersion"], "2")
+        self.assertEqual(info["CFBundleShortVersionString"], "0.1.0")
+        self.assertEqual(info["CFBundleVersion"], "1")
         self.assertEqual(info["CFBundleIdentifier"], BUNDLE_ID)
         self.assertEqual(info["CFBundleDisplayName"], "HeroBox")
         self.assertEqual(info["CFBundleExecutable"], "XeniOS")
@@ -49,8 +49,8 @@ class Xbox360PackagingTests(unittest.TestCase):
         )
 
     def test_rejects_incorrect_version(self):
-        self.version.write_text("MARKETING_VERSION = 0.2.0\nCURRENT_PROJECT_VERSION = 2\n")
-        with self.assertRaisesRegex(ValueError, "remain at 0.1.1"):
+        self.version.write_text("MARKETING_VERSION = 0.2.0\nCURRENT_PROJECT_VERSION = 1\n")
+        with self.assertRaisesRegex(ValueError, "remain at 0.1.0"):
             configure_bundle(self.app, self.version, self.assets)
 
     def test_rejects_missing_engine(self):
@@ -59,7 +59,7 @@ class Xbox360PackagingTests(unittest.TestCase):
             configure_bundle(self.app, self.version, self.assets)
 
     def test_reads_shared_version(self):
-        self.assertEqual(read_version(ROOT / "Version.xcconfig"), ("0.1.1", "2"))
+        self.assertEqual(read_version(ROOT / "Version.xcconfig"), ("0.1.0", "1")
 
 
 if __name__ == "__main__":

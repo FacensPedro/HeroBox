@@ -8,8 +8,8 @@ import subprocess
 from pathlib import Path
 from typing import Callable
 
-VERSION = "0.1.1"
-BUILD = "2"
+VERSION = "0.1.0"
+BUILD = "1"
 BUNDLE_ID = "com.facenspedro.herobox"
 XENIA_ADAPTER = "_herobox_xenia_launch"
 UTSURO_ADAPTER = "_herobox_utsuro_launch"

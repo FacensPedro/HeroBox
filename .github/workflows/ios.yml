@@ -1,5 +1,9 @@
 name: iOS
 on: [push, pull_request, workflow_dispatch]
+
+permissions:
+  contents: read
+
 jobs:
   validation:
     runs-on: macos-15
@@ -7,25 +11,77 @@ jobs:
       - uses: actions/checkout@v4
       - name: Swift media tests
         run: swift test
-      - name: Python runtime packaging tests
+      - name: Python packaging regression tests
         run: python3 -m unittest discover -s Tests/Packaging -p 'test_*.py'
-      - run: brew install xcodegen
-      - run: xcodegen generate
-      - name: Build SwiftUI host
+      - name: Install xcodegen
+        run: brew install xcodegen
+      - name: Generate Xcode project
+        run: xcodegen generate
+      - name: Build SwiftUI inspector
         run: xcodebuild -project HeroBox.xcodeproj -scheme HeroBox -destination 'generic/platform=iOS' -configuration Debug -derivedDataPath build/DerivedData CODE_SIGNING_ALLOWED=NO build
-      - name: Verify 0.1.1 version
+      - name: Verify 0.1.0 version and build number
         run: |
           plist=build/DerivedData/Build/Products/Debug-iphoneos/HeroBox.app/Info.plist
-          test "$(plutil -extract CFBundleShortVersionString raw "$plist")" = "0.1.1"
-          test "$(plutil -extract CFBundleVersion raw "$plist")" = "2"
+          test "$(plutil -extract CFBundleShortVersionString raw "$plist")" = "0.1.0"
+          test "$(plutil -extract CFBundleVersion raw "$plist")" = "1"
+
+  original_xbox:
+    name: Build and release HeroBox 0.1.0 IPA
+    if: github.event_name == 'workflow_dispatch' || (github.event_name == 'push' && github.ref == 'refs/heads/main')
+    runs-on: macos-15
+    needs: validation
+    timeout-minutes: 90
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build original Xbox native runtime and IPA
+        run: bash scripts/build-original-xbox.sh
+      - name: Verify original Xbox release package
+        shell: bash
+        run: |
+          set -euo pipefail
+          archive="build/HeroBox-0.1.0.ipa"
+          test -s "$archive"
+          work=$(mktemp -d)
+          trap 'rm -rf "$work"' EXIT
+          ditto -x -k "$archive" "$work"
+          app="$work/Payload/HeroBox.app"
+          python3 scripts/verify_original_xbox.py "$app"
+          codesign --verify --deep --strict "$app"
+          executable=$(plutil -extract CFBundleExecutable raw "$app/Info.plist")
+          xcrun lipo "$app/$executable" -verify_arch arm64
+          xcrun lipo "$app/Frameworks/libxemu-ios-core.dylib" -verify_arch arm64
+      - uses: actions/upload-artifact@v4
+        with:
+          name: HeroBox-0.1.0
+          path: build/HeroBox-0.1.0.ipa
+          if-no-files-found: error
+      - name: Publish GitHub Release v0.1.0
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          if gh release view v0.1.0 --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
+            echo "Release v0.1.0 already exists; preserving the published asset."
+          else
+            gh release create v0.1.0 build/HeroBox-0.1.0.ipa \
+              --title "HeroBox 0.1.0" \
+              --notes-file docs/RELEASE_NOTES_0.1.0.md \
+              --target "$GITHUB_SHA" \
+              --repo "$GITHUB_REPOSITORY"
+          fi
+
   unified:
-    name: Unified runtime readiness and release
+    name: Unified three-console native integration readiness
     runs-on: macos-15
     needs: validation
     timeout-minutes: 90
     steps:
       - uses: actions/checkout@v4
-      - name: Check real native adapter source availability
+      - name: Check native adapter availability
         id: readiness
         shell: bash
         run: |
@@ -33,16 +89,10 @@ jobs:
             echo "ready=true" >> "$GITHUB_OUTPUT"
           else
             echo "ready=false" >> "$GITHUB_OUTPUT"
-            echo "### Unified IPA is blocked" >> "$GITHUB_STEP_SUMMARY"
-            echo "The XeniOS and Utsuro in-process adapters are not integrated yet." >> "$GITHUB_STEP_SUMMARY"
-            echo "No IPA will be published until both native cores are linked and verified." >> "$GITHUB_STEP_SUMMARY"
+            echo "### Experimental unified IPA is blocked" >> "$GITHUB_STEP_SUMMARY"
+            echo "Xbox 360 and Xbox One native adapters are not yet integrated." >> "$GITHUB_STEP_SUMMARY"
+            echo "HeroBox 0.1.0 packages the original Xbox native engine only." >> "$GITHUB_STEP_SUMMARY"
           fi
-      - name: Build and verify one native IPA
+      - name: Build and verify unified native candidate
         if: steps.readiness.outputs.ready == 'true'
         run: bash scripts/build-unified.sh
-      - uses: actions/upload-artifact@v4
-        if: steps.readiness.outputs.ready == 'true'
-        with:
-          name: HeroBox-0.1.1
-          path: build/HeroBox-0.1.1.ipa
-          if-no-files-found: error

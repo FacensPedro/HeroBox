@@ -34,6 +34,6 @@ cp "$source_dir/COPYING" "$bundle/DukeX-COPYING.txt"
 codesign --force --sign - --entitlements "$app/DukeX.entitlements" "$bundle"
 codesign --verify --deep --strict "$bundle"
 test -f "$bundle/Frameworks/libxemu-ios-core.dylib"
-test "$(plutil -extract CFBundleShortVersionString raw "$bundle/Info.plist")" = 0.1.1
+test "$(plutil -extract CFBundleShortVersionString raw "$bundle/Info.plist")" = 0.1.0
 (cd "$work/package" && zip -qry "$work/HeroBox.ipa" Payload)
-mv "$work/HeroBox.ipa" "$root/build/HeroBox-0.1.1.ipa"
+mv "$work/HeroBox.ipa" "$root/build/HeroBox-0.1.0.ipa"
