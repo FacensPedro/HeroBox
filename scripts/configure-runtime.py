@@ -8,7 +8,9 @@ core, root = map(Path, sys.argv[1:])
 ios = core / "ios"
 app = ios / "Utsuro"
 project = ios / "project.yml"
-spec = project.read_text()
+shutil.copytree(root / "App/HeroBoxAssets.xcassets", app / "HeroBoxAssets.xcassets")
+spec = project.read_text().replace("ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon",
+                                   "ASSETCATALOG_COMPILER_APPICON_NAME: HeroBoxIcon")
 assert "UTSURO_BUNDLE_IDENTIFIER: com.utsuro.app" in spec
 spec = spec.replace("    SWIFT_VERSION:", '    SWIFT_ACTIVE_COMPILATION_CONDITIONS: "$(inherited) HEROBOX_XBOX_ONE"\n    SWIFT_VERSION:')
 project.write_text(spec.replace("UTSURO_BUNDLE_IDENTIFIER: com.utsuro.app",

@@ -9,14 +9,16 @@ enum ConsolePalette {
 
 struct ConsoleHeader: View {
     var body: some View {
-        HStack(alignment: .firstTextBaseline) {
+        HStack {
             Text("Home")
                 .font(.largeTitle.weight(.light))
                 .accessibilityAddTraits(.isHeader)
             Spacer()
-            Text("HeroBox")
-                .font(.headline)
-                .foregroundStyle(.secondary)
+            Image("HeroBoxLogo")
+                .resizable()
+                .scaledToFit()
+                .frame(width: 60, height: 60)
+                .accessibilityLabel("HeroBox")
         }
         .padding(.bottom, 10)
         .overlay(alignment: .bottomLeading) {
