@@ -1,37 +1,52 @@
 # HeroBox
 
-HeroBox is an early-stage iOS project for original Xbox, Xbox 360, and Xbox One emulation. The iPhone and iPad app inspects files and folders selected in Files. A separate experimental device build includes the Xbox One runtime.
+HeroBox 0.1.1 is an experimental iOS/iPadOS emulator project targeting **one signed IPA** with original Xbox, Xbox 360, and Xbox One cores.
 
-## Play original Xbox games
+## Single-IPA status
 
-Download the HeroBox-0.1.0-original-Xbox artifact from the iOS workflow, extract the IPA, sign it and install it on your device. Open Play original Xbox, configure the MCPX ROM, flash BIOS and HDD image, import an Xbox XISO into the library, enable JIT for HeroBox, then select the game to start it. On iOS 26 and later configure StikDebug with Universal.js. The device build compiles the DukeX v1.0.2 frontend, embeds its matching xemu, Slirp and MoltenVK binaries and runs the game in the HeroBox process. The inspector-only target remains available for development. No games or console firmware are included.
+**A working three-console IPA is not complete yet.** The original Xbox frontend (DukeX/xemu) already launches its own native shared core. XeniOS currently provides the Xbox 360 core as a separate UIKit application executable, and Utsuro statically links an Xbox One/FEX engine into a different iOS host. Those standalone app entry points cannot simply be copied into one IPA and launched as independent apps.
 
-## Media identification
+The consolidated executable must link the XeniOS engine as an in-process core, link the Utsuro engine and its FEX/JIT components, and coordinate their initialization and shutdown with the existing xemu runtime. It also needs one game library, renderer, input router, entitlement set and JIT/memory manager. Separate executables placed in the IPA are not a valid solution.
 
-| Console | Recognized input |
+All release version settings have been moved to **0.1.1 (build 2)**. The only intended release artifact is `HeroBox-0.1.1.ipa` with bundle identifier `com.facenspedro.herobox`. The unified build script deliberately rejects the current original-Xbox-only application until genuine Xbox 360 and Xbox One native adapters exist, so no false three-console IPA is published.
+
+## Are Xbox operating-system files required?
+
+| Console | Requirements |
 | --- | --- |
-| Original Xbox | An executable starting with `XBEH`, or an extracted folder containing a matching `default.xbe` |
-| Xbox 360 | An executable starting with `XEX2`, or an extracted folder containing a matching `default.xex` |
-| Xbox One | A selected directory containing both `Mount/` and `EmbeddedXvd/` |
+| Original Xbox | MCPX boot ROM, Xbox-compatible flash BIOS, and a properly formatted Xbox HDD image. The original Microsoft dashboard is not required when the HDD has a compatible alternative. |
+| Xbox 360 | No Xbox 360 operating system, dashboard, BIOS, or NAND image is required for regular games when using Xenia/XeniOS. |
+| Xbox One | Utsuro needs a **decrypted game dump** with both `Mount/` and `EmbeddedXvd/Windows`; the latter supplies Windows-derived Xbox One userland files. New OS versions may require additional compatibility tables. There is no separate full-OS installation step. |
 
-Call `try XboxMedia.identify(url)` with a local file or directory URL. The method returns a console generation for recognized inputs, returns `nil` for unknown media, and throws on access errors. Recognition checks the signature or directory layout. It does not validate an entire game, extract disc images, or confirm compatibility. The inspector also detects XDVDFS disc images (`.iso` or `.xiso`) using both volume-descriptor signatures; this alone cannot distinguish original Xbox discs from Xbox 360 discs. Compatible original Xbox XISO images are imported and launched through the DukeX/xemu player build, not the inspector-only target.
+No proprietary Microsoft firmware, OS images, keys, or commercial games are bundled in HeroBox.
 
-## Build and test
+## Native engine sources
 
-To build the app on macOS, install XcodeGen, run `xcodegen generate`, and open `HeroBox.xcodeproj`. Select the HeroBox scheme and a signing team for device installation.
+- Original Xbox: [DukeX/xemu](https://github.com/MaftyManicEMU/DukeX), including the xemu ARM64 shared core, Slirp and MoltenVK.
+- Xbox 360: [XeniOS](https://github.com/xenios-jp/XeniOS), including PowerPC-to-ARM64 JIT and a native Metal renderer. The upstream iOS build remains a standalone executable until refactored.
+- Xbox One: [Utsuro](https://github.com/Leviidev/Utsuro), an Xbox One Windows-userland translation layer using FEX, with a separate game library, JIT initialization and bundled per-title system files.
 
-Open `Package.swift` in Xcode 15 or later. The library targets iOS 16 or later. Run `swift test` on a Mac to execute the media recognition tests.
+## Build
 
-## Xbox One device build
+Swift recognition tests and packaging-contract tests run in GitHub Actions. On a macOS build host:
 
-On a Mac with Xcode 26, XcodeGen, CMake, ccache, and the hosted-JIT husk-fex source tree, export `HUSK_FEX_DIR` and run `bash scripts/build-xbox-one.sh`. The upstream FEX build also reads `FATHOM/build/fexcore-macos-libs/libxxhash.a` if its own build does not produce that archive. The script compiles a pinned Utsuro revision and packages the engine, Metal renderer, controller support, JIT script, and HeroBox media inspector together in `build/HeroBox-XboxOne.ipa`. The standard inspector target does not link this engine.
+```sh
+swift test
+python3 -m unittest discover -s Tests/Packaging -p 'test_*.py'
+bash scripts/build-unified.sh
+```
 
-Sign the IPA for your device. In the runtime build, choose StikDebug in Settings and use the runtime's JIT setup so it sends its matching script and prepares executable memory. Import a decrypted Xbox One game directory containing Mount and EmbeddedXvd, then select Play in the library. Xbox 360 inputs currently support inspection only. No title has been validated on a physical device in this project.
+The last command compiles the original Xbox host, then calls `scripts/verify_unified.py` to check for an in-process Xbox 360 native launcher and an in-process Xbox One native launcher. Both are **still missing**. Until they are implemented and gameplay is verified, the command fails without releasing an IPA. This is an intentional safety check, not a successful universal emulator build.
 
-## Memory+
+The separate Xbox development scripts remain available for regression testing, but the workflow no longer publishes one artifact per console. The inspector target can build on its own; it recognizes XBE, XEX, STFS and Xbox One folder layouts, but identification is not the same as game execution.
 
-Both targets request the increased memory limit and extended virtual addressing entitlements. The signing profile and device determine whether they take effect. The inspector shows current process memory headroom. Its StikDebug action requests attachment to the current process and reports URL delivery only.
+## iPhone Duo and iPad display support
 
-## Credits
+HeroBox 0.1.1 targets both iPhone and iPad device families, including the iPhone Duo outer and unfolded inner displays. The SwiftUI inspector uses the live scene geometry and horizontal size class to adapt its grid, spacing, and maximum content width. It does not hard-code an iPhone model identifier or use UIScreen.main to infer a fold state.
 
-The Xbox One device build uses [Utsuro](https://github.com/Leviidev/Utsuro), its FEX integration, StikDebug support, and game library.
+Portrait and landscape orientations are supported on iPhone; iPad also supports upside-down portrait. The iPad target does not require fullscreen, allowing supported iPadOS multitasking and resizable windows. The same adaptive layout is intended to handle iPhone Duo folded, unfolded, and split-view scene sizes without a device-specific app edition.
+
+These changes improve the HeroBox SwiftUI host only. The three native emulation engines must independently handle Metal drawable resizing, changing safe areas, active window scenes, gamepad overlays, and JIT/memory lifecycle before game rendering can be considered supported in all iPhone Duo poses and iPad window modes. Validate on Xcode 27.1 Device Hub with iPhone Duo open, closed, rotated and folded, and on iPad with full-screen and resized windows.
+## Credits and licensing
+
+This work references DukeX, xemu, XeniOS and Utsuro. Combined redistribution must retain their applicable license notices and comply with platform signing requirements.

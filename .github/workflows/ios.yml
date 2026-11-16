@@ -1,26 +1,48 @@
 name: iOS
 on: [push, pull_request, workflow_dispatch]
 jobs:
-  media:
+  validation:
     runs-on: macos-15
     steps:
       - uses: actions/checkout@v4
-      - run: swift test
+      - name: Swift media tests
+        run: swift test
+      - name: Python runtime packaging tests
+        run: python3 -m unittest discover -s Tests/Packaging -p 'test_*.py'
       - run: brew install xcodegen
       - run: xcodegen generate
-      - run: xcodebuild -project HeroBox.xcodeproj -scheme HeroBox -destination 'generic/platform=iOS' -configuration Debug -derivedDataPath build/DerivedData CODE_SIGNING_ALLOWED=NO build
-      - name: Verify app version
+      - name: Build SwiftUI host
+        run: xcodebuild -project HeroBox.xcodeproj -scheme HeroBox -destination 'generic/platform=iOS' -configuration Debug -derivedDataPath build/DerivedData CODE_SIGNING_ALLOWED=NO build
+      - name: Verify 0.1.1 version
         run: |
           plist=build/DerivedData/Build/Products/Debug-iphoneos/HeroBox.app/Info.plist
-          test "$(plutil -extract CFBundleShortVersionString raw "$plist")" = "0.1.0"
-  original-xbox:
+          test "$(plutil -extract CFBundleShortVersionString raw "$plist")" = "0.1.1"
+          test "$(plutil -extract CFBundleVersion raw "$plist")" = "2"
+  unified:
+    name: Unified runtime readiness and release
     runs-on: macos-15
+    needs: validation
+    timeout-minutes: 90
     steps:
       - uses: actions/checkout@v4
-      - name: Build the original Xbox player
-        run: bash scripts/build-original-xbox.sh
+      - name: Check real native adapter source availability
+        id: readiness
+        shell: bash
+        run: |
+          if python3 scripts/check_unified_sources.py; then
+            echo "ready=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "ready=false" >> "$GITHUB_OUTPUT"
+            echo "### Unified IPA is blocked" >> "$GITHUB_STEP_SUMMARY"
+            echo "The XeniOS and Utsuro in-process adapters are not integrated yet." >> "$GITHUB_STEP_SUMMARY"
+            echo "No IPA will be published until both native cores are linked and verified." >> "$GITHUB_STEP_SUMMARY"
+          fi
+      - name: Build and verify one native IPA
+        if: steps.readiness.outputs.ready == 'true'
+        run: bash scripts/build-unified.sh
       - uses: actions/upload-artifact@v4
+        if: steps.readiness.outputs.ready == 'true'
         with:
-          name: HeroBox-0.1.0-original-Xbox
-          path: build/HeroBox-0.1.0.ipa
+          name: HeroBox-0.1.1
+          path: build/HeroBox-0.1.1.ipa
           if-no-files-found: error
